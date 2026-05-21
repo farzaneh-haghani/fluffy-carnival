@@ -60,6 +60,12 @@ After CL is made and implemented peer review the changes by asking:
         - Do tests still pass after the change?
         - Was a design pattern used because it helped, or because it sounded good?       
 
+
+purpose of review:
+    - easier to understand
+    - easier to change + expand. 
+    - easier to test
+
 3) Think 4-5 tests that should be written. 
 
     what if i could on write one(more) test only?
