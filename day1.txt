@@ -80,10 +80,12 @@ stretch:
 6) Collection has no delivery fee added.
 7) Premium customer gets larger discount on 5+ items. 
 
+TODO:
 
+- new IP's - update config + relog into jenkins + restart sqube.  
+- update pipeline + jenkins plugins - html viewer + warnings
+- write Tests
+- generate structured review (i will add the patterns.)
 
-4) repo set-up.
-
-5) basic jenkins pipeline.
-6) advanced features. 
-7) write tests
+- Short pair programming for 1-2 issues
+- individual work through issues + group pattern work. 
