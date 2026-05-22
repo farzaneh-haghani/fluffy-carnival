@@ -133,5 +133,19 @@ avoided because:
     - Remotely.
 
 
+
+1) Add strategy for delivery
+2) Add strategy for Payments
+
+3) Further modularization. 
+4) Sonarqube + static analysis issues. 
+
+
+3) AS group Notifications + adapter
+4) Facades.
+
+
+5) Add a new customer.type to both original and refactored code. 
+
  
 
