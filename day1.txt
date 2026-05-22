@@ -147,5 +147,15 @@ avoided because:
 
 5) Add a new customer.type to both original and refactored code. 
 
- 
+ Add new customer type: LOYALTY
 
+Rules:
+
+Add a new customer type: LOYALTY
+
+Rules:
+- LOYALTY customers get 12% discount on all orders.
+- They get an extra £2.00 discount if subtotal is over £75.
+- They get an extra £1.50 discount if the order has more than 3 items.
+- Maximum total discount cannot exceed 25% of subtotal.
+- Existing behaviours must still pass.

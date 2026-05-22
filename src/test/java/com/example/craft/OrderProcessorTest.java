@@ -154,4 +154,23 @@ class OrderProcessorTest {
 
                 assertTrue(exception.getMessage().contains("Unknown payment type"));
         }
+
+        @Test
+        void loyaltyCustomerGetsExpectedDiscount() {
+                Customer customer = new Customer(
+                                "Lara",
+                                "lara@test.com",
+                                "07123456789",
+                                CustomerType.LOYALTY);
+
+                Order order = new Order("ORD-008", customer, "STANDARD", "CARD");
+                order.addItem(new OrderItem("Notebook", 4, 2500));
+
+                String receipt = processor.process(order);
+
+                assertTrue(receipt.contains("Subtotal: £100.00"));
+                assertTrue(receipt.contains("Discount: £15.50"));
+                assertTrue(receipt.contains("Delivery: £0.00"));
+                assertTrue(receipt.contains("Total: £84.50"));
+        }
 }
