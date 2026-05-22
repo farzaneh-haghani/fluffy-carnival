@@ -18,6 +18,10 @@ import com.example.craft.delivery.DeliveryStrategyFactory;
 import com.example.craft.payment.PaymentProcessor;
 import com.example.craft.payment.PaymentProcessorFactory;
 
+import com.example.craft.validation.OrderValidator;
+
+import com.example.craft.receipt.ReceiptGenerator;
+
 
 public class OrderProcessor {
 
@@ -26,10 +30,12 @@ public class OrderProcessor {
     private final Notifier smsNotifier = new SmsNotifierAdapter(new LegacySmsClient());
     private final DeliveryStrategyFactory deliveryStrategyFactory = new DeliveryStrategyFactory();
     private final PaymentProcessorFactory paymentProcessorFactory = new PaymentProcessorFactory();
+    private final OrderValidator orderValidator = new OrderValidator();
+    private final ReceiptGenerator receiptGenerator = new ReceiptGenerator();
 
 
     public String process(Order order) {
-        validateOrder(order);
+        orderValidator.validate(order);
 
         int subtotal = calculateSubtotal(order);
         int discount = calculateDiscount(order.getCustomer(), order, subtotal);
@@ -44,48 +50,9 @@ public class OrderProcessor {
         processPayment(order, total);
         sendNotifications(order, total);
 
-        return generateReceipt(order, subtotal, discount, deliveryFee, total);
-    }
-
-    private void validateOrder(Order order) {
-        if (order == null) {
-            throw new IllegalArgumentException("Order must not be null");
-        }
-
-        if (order.getCustomer() == null) {
-            throw new IllegalArgumentException("Customer must not be null");
-        }
-
-        if (order.getItems().isEmpty()) {
-            throw new IllegalArgumentException("Order must contain at least one item");
-        }
-
-        Customer customer = order.getCustomer();
-
-        if (customer.getName() == null || customer.getName().trim().isEmpty()) {
-            throw new IllegalArgumentException("Customer name is invalid");
-        }
-
-        if (customer.getEmail() == null || !customer.getEmail().contains("@")) {
-            throw new IllegalArgumentException("Customer email is invalid");
-        }
-
-        if (customer.getType() == null) {
-            throw new IllegalArgumentException("Customer type is required");
-        }
-        for (OrderItem item : order.getItems()) {
-            if (item == null) {
-                throw new IllegalArgumentException("Order item must not be null");
-            }
-
-            if (item.getQuantity() <= 0) {
-                throw new IllegalArgumentException("Item quantity must be positive");
-            }
-
-            if (item.getUnitPricePence() <= 0) {
-                throw new IllegalArgumentException("Item price must be positive");
-            }
-        }
+        String receipt = receiptGenerator.generate(order, subtotal, discount, deliveryFee, total);
+        System.out.println(receipt);
+        return receipt;
     }
 
     private int calculateSubtotal(Order order) {
@@ -114,36 +81,6 @@ public class OrderProcessor {
         processor.processPayment(order, total);
     }
 
-    // private void processPayment(Order order, int total) {
-    //     Customer customer = order.getCustomer();
-    //     String paymentType = order.getPaymentType();
-
-    //     if (paymentType.equalsIgnoreCase("CARD")) {
-    //         System.out.println("Taking card payment for £" + formatPounds(total));
-
-    //         if (total > 100000) {
-    //             System.out.println("Large card payment requires manual review");
-    //         }
-
-    //     } else if (paymentType.equalsIgnoreCase("PAYPAL")) {
-    //         System.out.println("Taking PayPal payment for £" + formatPounds(total));
-
-    //         if (customer.getEmail().endsWith("@example.com")) {
-    //             System.out.println("PayPal payment using test-like email address");
-    //         }
-
-    //     } else if (paymentType.equalsIgnoreCase("BANK_TRANSFER")) {
-    //         System.out.println("Creating bank transfer request for £" + formatPounds(total));
-
-    //         if (total < 1000) {
-    //             System.out.println("Bank transfer for low value order may not be worth processing");
-    //         }
-
-    //     } else {
-    //         throw new IllegalArgumentException("Unknown payment type: " + paymentType);
-    //     }
-    // }
-
     private void sendNotifications(Order order, int total) {
         Customer customer = order.getCustomer();
 
@@ -163,20 +100,6 @@ public class OrderProcessor {
         if (customer.getType() == CustomerType.PREMIUM && total > 5000) {
             emailNotifier.notifyCustomer(customer, "Thank you for being a premium customer.");
         }
-    }
-
-    private String generateReceipt(Order order, int subtotal, int discount, int deliveryFee, int total) {
-        String receipt = "Receipt\n"
-                + "-------\n"
-                + "Order: " + order.getOrderId() + "\n"
-                + "Customer: " + order.getCustomer().getName() + "\n"
-                + "Subtotal: £" + formatPounds(subtotal) + "\n"
-                + "Discount: £" + formatPounds(discount) + "\n"
-                + "Delivery: £" + formatPounds(deliveryFee) + "\n"
-                + "Total: £" + formatPounds(total) + "\n";
-
-        System.out.println(receipt);
-        return receipt;
     }
 
     private String formatPounds(int pence) {
